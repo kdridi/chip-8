@@ -40,10 +40,12 @@ int main(int argc, const char *argv[]) {
     }
 
     uint16_t keymap[16] = {
-        49, 50, 51, 52,
-        SDLK_a, SDLK_z, SDLK_e, SDLK_r,
-        SDLK_q, SDLK_s, SDLK_d, SDLK_f,
-        SDLK_w, SDLK_x, SDLK_c, SDLK_v,
+        SDLK_x,
+        SDLK_1, SDLK_2, SDLK_3,
+        SDLK_a, SDLK_z, SDLK_e,
+        SDLK_q, SDLK_s, SDLK_d,
+        SDLK_w, SDLK_c,
+        SDLK_4, SDLK_r, SDLK_f, SDLK_v,
     };
 
     // chip8_disassemble();
@@ -73,6 +75,8 @@ int main(int argc, const char *argv[]) {
                     quit = true;
                 } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
                     quit = true;
+                } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F1) {
+                    chip8_reset();
                 } else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
                     int8_t key = -1;
                     for (int i = 0; i < 16; i++) {

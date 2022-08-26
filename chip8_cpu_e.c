@@ -11,7 +11,7 @@
 static opcode_handler_t handlers[0x100];
 
 void chip8_cpu_E___() {
-    opcode_handler_t h = handlers[chip8.cpu.opcode.nn];
+    opcode_handler_t h = handlers[NN];
     if (h) {
         h();
     } else {
@@ -23,20 +23,12 @@ void chip8_cpu_E___() {
 
 // Skip the following instruction if the key corresponding to the hex value currently stored in register VX is pressed
 static void chip8_cpu_EX9E() {
-    // printf("SKP V%X", chip8.cpu.opcode.x);
-    // fflush(stdout);
-    if (chip8.keys[chip8.cpu.v[chip8.cpu.opcode.x]]) {
-        chip8.cpu.pc += 2;
-    }
+    SKIP_NEXT_IF(KEY_IS_PRESSED(VX));
 }
 
 // Skip the following instruction if the key corresponding to the hex value currently stored in register VX is not pressed
 static void chip8_cpu_EXA1() {
-    // printf("SKNP V%X", chip8.cpu.opcode.x);
-    // fflush(stdout);
-    if (!chip8.keys[chip8.cpu.v[chip8.cpu.opcode.x]]) {
-        chip8.cpu.pc += 2;
-    }
+    SKIP_NEXT_IF(KEY_IS_PRESSED(VX) == false);
 }
 
 __attribute__((constructor))

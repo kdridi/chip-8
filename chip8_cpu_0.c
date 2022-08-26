@@ -22,30 +22,20 @@ void chip8_cpu_0___(void) {
 
 // Execute machine language subroutine at address NNN
 static void chip8_cpu_0NNN() {
-    printf("SYS $%03X\n", chip8.cpu.opcode.nnn);
+    printf("SYS $%03X\n", NNN);
     fflush(stdout);
     abort();
-    chip8.cpu.stack[chip8.cpu.sp++] = chip8.cpu.pc;
-    chip8.cpu.pc = chip8.cpu.opcode.nnn;
 }
 
 // Clear the screen
 static void chip8_cpu_00E0() {
-    // printf("CLS");
-    // fflush(stdout);
-    for (int i = 0, k = 0; i < SCREEN_H; ++i) {
-        for (int j = 0; j < SCREEN_W; ++j, ++k) {
-            chip8.screen[k] = 0;
-        }
-    }
+    memset(chip8.screen, 0, sizeof(chip8.screen));
     chip8.screen_redraw = true;
 }
 
 // Return from a subroutine
 static void chip8_cpu_00EE() {
-    // printf("RET");
-    // fflush(stdout);
-    chip8.cpu.pc = chip8.cpu.stack[--chip8.cpu.sp];
+    PC = STACK_POP();
 }
 
 __attribute__((constructor))

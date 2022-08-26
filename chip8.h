@@ -71,7 +71,34 @@ typedef struct {
 
 extern chip8_t chip8;
 
+#define X chip8.cpu.opcode.x
+#define Y chip8.cpu.opcode.y
+#define N chip8.cpu.opcode.n
+#define NN chip8.cpu.opcode.nn
+#define NNN chip8.cpu.opcode.nnn
+#define V(n) chip8.cpu.v[n]
+#define VX V(X)
+#define VY V(Y)
+#define V0 V(0x0)
+#define VF V(0xF)
+
+#define RAM(addr) chip8.ram[(addr)]
+#define SCREEN(x, y) chip8.screen[(x) + (y) * SCREEN_W]
+#define KEY_IS_PRESSED(n) chip8.keys[n]
+#define SKIP_NEXT_IF(cond) do { if (cond) { PC += 2; } } while (false)
+
+#define STACK_PUSH(n) chip8.cpu.stack[chip8.cpu.sp++] = (n)
+#define STACK_POP() chip8.cpu.stack[--chip8.cpu.sp]
+
+#define CALL(addr) do { STACK_PUSH(PC); PC = (addr); } while (false)
+
+#define I chip8.cpu.i
+#define PC chip8.cpu.pc
+#define DT chip8.cpu.delay_timer
+#define ST chip8.cpu.sound_timer
+
 void chip8_init(void);
+void chip8_reset(void);
 int chip8_rom_load(const char *filename);
 
 void chip8_disassemble(void);

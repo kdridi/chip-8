@@ -30,3 +30,9 @@ void chip8_init() {
     chip8.cpu.pc = 0x200;
     memcpy(chip8.ram + FONTS_START_ADDRESS, chip8_fonts, sizeof(chip8_fonts));
 }
+
+void chip8_reset(void) {
+    const char *rom_file = chip8.rom_file.name;
+    chip8_init();
+    chip8_rom_load(rom_file);
+}

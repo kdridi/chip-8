@@ -4,12 +4,7 @@
 
 #include "chip8.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-
 // Set register VX to NN
 void chip8_cpu_6XNN() {
-    // printf("LD V%X, $%02X", chip8.cpu.opcode.x, chip8.cpu.opcode.nn);
-    // fflush(stdout);
-    chip8.cpu.v[chip8.cpu.opcode.x] = chip8.cpu.opcode.nn;
+    VX = NN;
 }
