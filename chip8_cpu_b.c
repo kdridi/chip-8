@@ -5,8 +5,11 @@
 #include "chip8.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 // Jump to address NNN plus the value of register V0
 void chip8_cpu_BNNN() {
-    printf("JP V0, $%03X", chip8.cpu.opcode.nnn);
+    // printf("JP V0, $%03X", chip8.cpu.opcode.nnn);
+    // fflush(stdout);
+    chip8.cpu.pc = chip8.cpu.opcode.nnn + chip8.cpu.v[0];
 }

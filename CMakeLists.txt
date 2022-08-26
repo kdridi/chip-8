@@ -25,7 +25,7 @@ add_executable(${PROJECT_NAME}
         chip8_cpu_d.c
         chip8_cpu_e.c
         chip8_cpu_f.c
-        chip8_disassemble.c)
+        chip8_disassemble.c chip8_init.c)
 
 include(FindPkgConfig)
 pkg_search_module(SDL2 REQUIRED sdl2)

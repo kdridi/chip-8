@@ -4,10 +4,28 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <SDL2/SDL.h>
 
 #include "chip8.h"
+
+Uint32 chip8_timer_callback(Uint32 interval, void *param) {
+    // printf("timer callback\n");
+    chip8_fetch();
+    chip8_execute();
+    if (chip8.cpu.delay_timer == 0) {
+        chip8.cpu.delay_timer = 60;
+    } else {
+        chip8.cpu.delay_timer--;
+    }
+    if (chip8.cpu.sound_timer > 0) {
+        char byte = '\a';
+        write(STDOUT_FILENO, &byte, 1);
+        chip8.cpu.sound_timer--;
+    }
+    return interval;
+}
 
 int main(int argc, const char *argv[]) {
     if (argc != 2) {
@@ -16,11 +34,19 @@ int main(int argc, const char *argv[]) {
         return EXIT_FAILURE;
     }
 
+    chip8_init();
     if (chip8_rom_load(argv[1]) != EXIT_SUCCESS) {
         return EXIT_FAILURE;
     }
 
-    chip8_disassemble();
+    uint16_t keymap[16] = {
+        49, 50, 51, 52,
+        SDLK_a, SDLK_z, SDLK_e, SDLK_r,
+        SDLK_q, SDLK_s, SDLK_d, SDLK_f,
+        SDLK_w, SDLK_x, SDLK_c, SDLK_v,
+    };
+
+    // chip8_disassemble();
 
     {
         if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -38,39 +64,56 @@ int main(int argc, const char *argv[]) {
             return EXIT_FAILURE;
         }
         SDL_UpdateWindowSurface(window);
+        SDL_TimerID timer = SDL_AddTimer(1000 / 600, chip8_timer_callback, NULL);
         SDL_Event event;
         bool quit = false;
         while (!quit) {
             while (SDL_PollEvent(&event)) {
                 if (event.type == SDL_QUIT) {
                     quit = true;
-                }
-                if (event.type == SDL_KEYDOWN) {
-                    printf("Key down: %d\n", event.key.keysym.sym);
-                    if (event.key.keysym.sym == SDLK_ESCAPE) {
-                        quit = true;
+                } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
+                    quit = true;
+                } else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
+                    int8_t key = -1;
+                    for (int i = 0; i < 16; i++) {
+                        if (event.key.keysym.sym == keymap[i]) {
+                            key = i;
+                            break;
+                        }
+                    }
+                    if (key >= 0) {
+                        chip8.keys[key] = event.type == SDL_KEYDOWN;
+                    }
+                    chip8.key_pressed = -1;
+                    if (event.type == SDL_KEYDOWN) {
+                        chip8.key_pressed = key;
                     }
                 }
             }
 
-            for (int i = 0; i < SCREEN_H; ++i) {
-                for (int j = 0; j < SCREEN_W; ++j) {
-                    SDL_Rect rect = {j * SCREEN_S, i * SCREEN_S, SCREEN_S, SCREEN_S};
-                    if (chip8.screen[i * SCREEN_W + j]) {
-                        SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 0x00, 0x00, 0x00));
-                    } else {
-                        SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 0xFF, 0xFF, 0xFF));
+            if (chip8.screen_redraw) {
+                chip8.screen_redraw = false;
+                for (int i = 0; i < SCREEN_H; ++i) {
+                    for (int j = 0; j < SCREEN_W; ++j) {
+                        SDL_Rect rect = {j * SCREEN_S, i * SCREEN_S, SCREEN_S, SCREEN_S};
+                        if (chip8.screen[i * SCREEN_W + j]) {
+                            SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 0xFF, 0xFF, 0xFF));
+                        } else {
+                            SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 0x00, 0x00, 0x00));
+                        }
                     }
                 }
+                SDL_UpdateWindowSurface(window);
             }
 
-            SDL_UpdateWindowSurface(window);
 
+            /*
             for (int i = 0, k = 0; i < SCREEN_H; ++i) {
                 for (int j = 0; j < SCREEN_W; ++j, ++k) {
                     chip8.screen[k] = (i + j) % 2;
                 }
             }
+             */
 
         }
         SDL_DestroyWindow(window);

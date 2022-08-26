@@ -6,7 +6,7 @@
 
 #include <stdio.h>
 
-opcode_handler_t handlers[] = {
+const opcode_handler_t handlers[] = {
         chip8_cpu_0___,
         chip8_cpu_1NNN,
         chip8_cpu_2NNN,
@@ -25,20 +25,31 @@ opcode_handler_t handlers[] = {
         chip8_cpu_F___,
 };
 
+void chip8_fetch() {
+    chip8.cpu.opcode.value = 0;
+    // printf("%04lx: ", chip8.cpu.pc);
+    chip8.cpu.opcode.l = chip8.ram[chip8.cpu.pc++];
+    chip8.cpu.opcode.h = chip8.ram[chip8.cpu.pc++];
+    // printf("%04x: ", chip8.cpu.opcode.value);
+}
+
+void chip8_execute() {
+    uint8_t f = chip8.cpu.opcode.f;
+    opcode_handler_t handler = handlers[f];
+    if (handler == chip8_cpu_DXYN) {
+        handler();
+    } else {
+        handler();
+    }
+    // printf("\n");
+}
+
 void chip8_disassemble() {
     typeof(chip8.cpu.pc) pc = chip8.cpu.pc;
     chip8.cpu.pc = 0x200;
     while (chip8.cpu.pc < chip8.rom_file.length + 0x200) {
-        chip8.cpu.opcode.value = 0;
-        printf("%04lx: ", chip8.cpu.pc);
-
-        chip8.cpu.opcode.l = chip8.ram[chip8.cpu.pc++];
-        chip8.cpu.opcode.h = chip8.ram[chip8.cpu.pc++];
-        printf("%04x: ", chip8.cpu.opcode.value);
-
-        handlers[chip8.cpu.opcode.f]();
-
-        printf("\n");
+        chip8_fetch();
+        chip8_execute();
     }
     chip8.cpu.pc = pc;
 }

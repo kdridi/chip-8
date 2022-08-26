@@ -6,10 +6,15 @@
 
 #include <stdint.h>
 #include <assert.h>
+#include <stdbool.h>
 
 #define RAM_SIZE (4 * 1024)
 #define REGISTERS_COUNT 16
 #define STACK_SIZE 16
+#define FONTS_START_ADDRESS 0x50
+#define FONT_BLOCK_SIZE 5
+#define FONT_OFFSET(n) (FONTS_START_ADDRESS + ((n) * FONT_BLOCK_SIZE))
+#define KEYS_COUNT 16
 
 #define SCREEN_W 64
 #define SCREEN_H 32
@@ -49,21 +54,29 @@ typedef struct {
     } rom_file;
     char ram[RAM_SIZE];
     uint8_t screen[SCREEN_W * SCREEN_H];
+    bool screen_redraw;
     struct {
         opcode_t opcode;
         uint16_t pc;
         uint16_t i;
-        uint16_t v[REGISTERS_COUNT];
+        uint8_t v[REGISTERS_COUNT];
         uint16_t stack[STACK_SIZE];
         uint16_t sp;
+        uint8_t delay_timer;
+        uint8_t sound_timer;
     } cpu;
+    bool keys[KEYS_COUNT];
+    int8_t key_pressed;
 } chip8_t;
 
 extern chip8_t chip8;
 
+void chip8_init(void);
 int chip8_rom_load(const char *filename);
 
 void chip8_disassemble(void);
+void chip8_fetch();
+void chip8_execute();
 
 void chip8_cpu_0___(void);
 void chip8_cpu_1NNN(void);

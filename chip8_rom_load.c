@@ -8,6 +8,8 @@
 #include <stdlib.h>
 
 int chip8_rom_load(const char *filename) {
+    chip8.rom_file.name = "/home/kdridi/git/github.com/heidtn/chip8-roms.git/games/Space Invaders [David Winter] (alt).ch8";
+    chip8.rom_file.name = "/home/kdridi/git/github.com/heidtn/chip8-roms.git/games/Pong (1 player).ch8";
     chip8.rom_file.name = filename;
 
     FILE *rom = fopen(chip8.rom_file.name, "rb");

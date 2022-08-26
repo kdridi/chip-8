@@ -16,18 +16,27 @@ void chip8_cpu_E___() {
         h();
     } else {
         fprintf(stderr, "Unknown opcode: 0x%04x\n", chip8.cpu.opcode);
+        fflush(stdout);
         abort();
     }
 }
 
 // Skip the following instruction if the key corresponding to the hex value currently stored in register VX is pressed
 static void chip8_cpu_EX9E() {
-    printf("SKP V%X", chip8.cpu.opcode.x);
+    // printf("SKP V%X", chip8.cpu.opcode.x);
+    // fflush(stdout);
+    if (chip8.keys[chip8.cpu.v[chip8.cpu.opcode.x]]) {
+        chip8.cpu.pc += 2;
+    }
 }
 
 // Skip the following instruction if the key corresponding to the hex value currently stored in register VX is not pressed
 static void chip8_cpu_EXA1() {
-    printf("SKNP V%X", chip8.cpu.opcode.x);
+    // printf("SKNP V%X", chip8.cpu.opcode.x);
+    // fflush(stdout);
+    if (!chip8.keys[chip8.cpu.v[chip8.cpu.opcode.x]]) {
+        chip8.cpu.pc += 2;
+    }
 }
 
 __attribute__((constructor))
